@@ -1,15 +1,15 @@
 resource "google_container_cluster" "primary" {
   name               = "ca-gke-${terraform.workspace}-cluster"
-  zone               = "${var.region}-a"
-  initial_node_count = "${var.gke_num_nodes[terraform.workspace]}"
+  location           = var.region
+  initial_node_count = var.gke_num_nodes[terraform.workspace]
 
-  additional_zones = [
+  node_locations = [
     "${var.region}-b",
   ]
 
   master_auth {
-    username = "${var.gke_master_user}"
-    password = "${var.gke_master_pass}"
+    username = var.gke_master_user
+    password = var.gke_master_pass
   }
 
   node_config {
@@ -21,7 +21,7 @@ resource "google_container_cluster" "primary" {
     ]
 
     disk_size_gb = 10
-    machine_type = "${var.gke_node_machine_type}"
+    machine_type = var.gke_node_machine_type
     tags         = ["gke-node"]
   }
 }

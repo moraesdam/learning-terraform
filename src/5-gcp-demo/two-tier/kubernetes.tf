@@ -4,7 +4,7 @@ resource "kubernetes_secret" "mysql" {
   }
 
   data = {
-    password = "${var.sql_pass}"
+    password = var.sql_pass
   }
 }
 
@@ -25,7 +25,7 @@ resource "kubernetes_service" "wordpress" {
 
     selector = {
       app  = "wordpress"
-      tier = "${kubernetes_replication_controller.wordpress.spec.0.selector.tier}"
+      tier = kubernetes_replication_controller.wordpress.spec.0.selector.tier
     }
 
     type = "LoadBalancer"
@@ -67,7 +67,7 @@ resource "kubernetes_replication_controller" "wordpress" {
       tier = "frontend"
     }
 
-    replicas = "${var.k8s_num_wp_replicas[terraform.workspace]}"
+    replicas = var.k8s_num_wp_replicas[terraform.workspace]
 
     template {
       container {
@@ -76,12 +76,12 @@ resource "kubernetes_replication_controller" "wordpress" {
 
         env {
           name  = "WORDPRESS_DB_HOST"
-          value = "${google_sql_database_instance.sql_master.ip_address.0.ip_address}"
+          value = google_sql_database_instance.sql_master.ip_address.0.ip_address
         }
 
         env {
           name  = "WORDPRESS_DB_USER"
-          value = "${var.sql_user}"
+          value = var.sql_user
         }
 
         env {
@@ -89,7 +89,7 @@ resource "kubernetes_replication_controller" "wordpress" {
 
           value_from {
             secret_key_ref {
-              name = "${kubernetes_secret.mysql.metadata.0.name}"
+              name = kubernetes_secret.mysql.metadata.0.name
               key  = "password"
             }
           }
@@ -110,7 +110,7 @@ resource "kubernetes_replication_controller" "wordpress" {
         name = "wordpress-persistent-storage"
 
         persistent_volume_claim {
-          claim_name = "${kubernetes_persistent_volume_claim.wordpress.metadata.0.name}"
+          claim_name = kubernetes_persistent_volume_claim.wordpress.metadata.0.name
         }
       }
     }

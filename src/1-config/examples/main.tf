@@ -20,5 +20,5 @@ variable "environment_tag" {
 }
 
 output "cluster_endpoint" {
-  value = "${google_container_cluster.cluster.endpoint}"
+  value = google_container_cluster.cluster.endpoint
 }
